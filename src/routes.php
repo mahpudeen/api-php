@@ -61,15 +61,25 @@ return function (App $app) {
         $email_user = $jsonParams['email_user'];
         $nomor_hp = $jsonParams['nomor_hp'];
         $password_user = $jsonParams['password_user'];
+		
+		$query = "SELECT * FROM tb_user WHERE email_user='$email_user'";
+        $res = $this->db->query($query);
+        $row = $res->num_rows;
+        if ($row == 0) {
+			
+			$query = "INSERT INTO tb_user(nama_lengkap, email_user, password_user, nomor_hp, level_akses)
+				VALUES ('$nama_lengkap', '$email_user', '$password_user', '$nomor_hp', '2')";
 
-        $query = "INSERT INTO tb_user(nama_lengkap, email_user, password_user, nomor_hp, level_akses)
-            VALUES ('$nama_lengkap', '$email_user', '$password_user', '$nomor_hp', '2')";
-
-        if ($this->db->query($query)) {
-            return $response->withJson(["status" => "success", "message" => "Register success!"], 200);
-        } else {
-            return $response->withJson(["status" => "failed", "message" => "Register failed!"], 404);
+			if ($this->db->query($query)) {
+				return $response->withJson(["status" => "success", "message" => "Register success!"], 200);
+			} else {
+				return $response->withJson(["status" => "failed", "message" => "Register failed!"], 404);
+			}
+			
+		} else {
+            return $response->withJson(["status" => "failed", "message" => "Email sudah terdaftar!"], 404);
         }
+
     });
 
     //4. Login User
@@ -110,9 +120,10 @@ return function (App $app) {
             $size_chart = $jsonParams['size_chart'];
 			$tgl_pendaftaran = $jsonParams['tgl_pendaftaran'];
             $total_bayar = 200000+(intval($id_user));
+			$no_peserta = 10000+(intval($id_user));
 
-            $query = "INSERT INTO tb_pendaftaran(id_user, nomor_identitas, jenis_kelamin, alamat_user, tempat_lahir, tanggal_lahir, golongan_darah, riwayat_kesehatan, riwayat_kesehatan_keluarga, obat_pribadi, size_chart, total_bayar, status_bayar, status_racepack, tgl_pendaftaran)
-            VALUES ('$id_user', '$nomor_identitas', '$jenis_kelamin', '$alamat_user', '$tempat_lahir', '$tanggal_lahir', '$golongan_darah', '$riwayat_kesehatan', '$riwayat_kesehatan_keluarga', '$obat_pribadi', '$size_chart', $total_bayar, 'pending', 'N', '$tgl_pendaftaran')";
+            $query = "INSERT INTO tb_pendaftaran(id_user, nomor_identitas, jenis_kelamin, alamat_user, tempat_lahir, tanggal_lahir, golongan_darah, riwayat_kesehatan, riwayat_kesehatan_keluarga, obat_pribadi, size_chart, total_bayar, status_bayar, status_racepack, tgl_pendaftaran, no_peserta)
+            VALUES ('$id_user', '$nomor_identitas', '$jenis_kelamin', '$alamat_user', '$tempat_lahir', '$tanggal_lahir', '$golongan_darah', '$riwayat_kesehatan', '$riwayat_kesehatan_keluarga', '$obat_pribadi', '$size_chart', $total_bayar, 'pending', 'N', '$tgl_pendaftaran', '$no_peserta')";
 
             if ($this->db->query($query)) {
                 return $response->withJson(["status" => "success", "message" => "Daftar sukses!"], 200);
@@ -167,9 +178,11 @@ return function (App $app) {
         $jml_racepack_n = $sql5->fetch_assoc();
         $sql6 = $this->db->query("SELECT count(*) as jml_racepack_y  FROM tb_pendaftaran WHERE status_racepack = 'Y'");
         $jml_racepack_y = $sql6->fetch_assoc();
+		$sql7 = $this->db->query("SELECT count(*) as jml_daftar FROM tb_pendaftaran WHERE tgl_pendaftaran = CURDATE()");
+        $jml_daftar = $sql7 ->fetch_assoc();
         
         
-        return $response->withJson(["status" => "success", "jml1" => $jml_user, "jml2" => $jml_peserta, "jml3" => $jml_belumbayar, "jml4" => $jml_lunas, "jml5" => $jml_racepack_n, "jml6" => $jml_racepack_y ], 200);
+        return $response->withJson(["status" => "success", "jml1" => $jml_user, "jml2" => $jml_peserta, "jml3" => $jml_belumbayar, "jml4" => $jml_lunas, "jml5" => $jml_racepack_n, "jml6" => $jml_racepack_y, "jml7" => $jml_daftar ], 200);
         
     });
 
@@ -262,7 +275,7 @@ return function (App $app) {
                 $mail->SMTPAuth = true;
                 $mail->Username = 'pefindotest@gmail.com';
                 $mail->Password = 'pefindotest123';
-                $mail->setFrom("admin@otten32run.com", "No Reply");
+                $mail->setFrom("admin@otten32run.com", "Lupa password");
                 $mail->addAddress($email_user, $rowCheckUsernameAndEmail[0]['nama_lengkap']);
                 //Mail Content
                 $mail->isHTML(true);
