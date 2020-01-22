@@ -18,9 +18,9 @@ return [
 
         // Database Settings
         'db' => [
-            'host' => 'localhost',
-            'user' => 'root',
-            'pass' => '',
+            'host' => '104.154.86.126',
+            'user' => 'otten32run',
+            'pass' => 'qwerty123',
             'dbname' => 'db_otten32run',
             'driver' => 'mysql'
         ]
