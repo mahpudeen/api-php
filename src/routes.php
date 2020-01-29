@@ -124,7 +124,7 @@ return function (App $app) {
             $total_bayar = 225000+(intval($id_user));
 
             $query = "INSERT INTO tb_pendaftaran(id_user, nomor_identitas, jenis_kelamin, alamat_user, tempat_lahir, tanggal_lahir, golongan_darah, riwayat_kesehatan, riwayat_kesehatan_keluarga, obat_pribadi, size_chart, total_bayar, status_bayar, status_racepack, tgl_pendaftaran, institusi, pekerjaan)
-            VALUES ('$id_user', '$nomor_identitas', '$jenis_kelamin', '$alamat_user', '$tempat_lahir', '$tanggal_lahir', '$golongan_darah', '$riwayat_kesehatan', '$riwayat_kesehatan_keluarga', '$obat_pribadi', '$size_chart', $total_bayar, 'pending', 'N', '$tgl_pendaftaran','$institusi','$pekerjaan')";
+            VALUES ('$id_user', '$nomor_identitas', '$jenis_kelamin', '$alamat_user', '$tempat_lahir', '$tanggal_lahir', '$golongan_darah', '$riwayat_kesehatan', '$riwayat_kesehatan_keluarga', '$obat_pribadi', '$size_chart', '$total_bayar', 'pending', 'N', '$tgl_pendaftaran','$institusi','$pekerjaan')";
 
             if ($this->db->query($query)) {
                 return $response->withJson(["status" => "success", "message" => "Daftar sukses!"], 200);
@@ -205,23 +205,28 @@ return function (App $app) {
         $jsonParams = $request->getParsedBody();
         $voucher = $jsonParams['voucher'];
         $id_user = $jsonParams['id_user'];
-        $v150 = 175000+(intval($id_user));
-        $v175 = 200000+(intval($id_user));
+        $v175 = 175000+(intval($id_user));
         $v200 = 200000+(intval($id_user));
         
-        if ($voucher == '32130996') {
-            $query = "UPDATE tb_pendaftaran SET total_bayar = '$v150' WHERE id_user = '$id_user'";
-            $this->db->query($query);
-            return $response->withJson(["status" => "success", "message" => "Voucher Mahasiswa (175k) terpasang!"], 200);
-        } elseif ($voucher == '32260296'){
-            $query = "UPDATE tb_pendaftaran SET total_bayar = '$v175' WHERE id_user = '$id_user'";
-            $this->db->query($query);
-            return $response->withJson(["status" => "success", "message" => "Voucher Alumni (200k) terpasang!"], 200);
-        } elseif ($voucher == '32090195'){
-            $query = "UPDATE tb_pendaftaran SET total_bayar = '$v200' WHERE id_user = '$id_user'";
-            $this->db->query($query);
-            return $response->withJson(["status" => "success", "message" => "Voucher Komunitas (200k) terpasang!"], 200);
-        }else{
+        $query = $this->db->query("SELECT * FROM voucher WHERE kode_voucher = '$voucher' and is_used = 'N'");
+        $row = $query->num_rows;
+        $data = $query->fetch_all(MYSQLI_ASSOC);
+
+        if($row == 1) {
+            if ($data[0]['kategori'] == 'M') {
+                $query2 = $this->db->query("UPDATE tb_pendaftaran SET total_bayar = '$v175' WHERE id_user = '$id_user'");
+                $query2 = $this->db->query("UPDATE voucher SET is_used = 'Y' WHERE kode_voucher = '$voucher'");
+                return $response->withJson(["status" => "success", "message" => "Voucher Mahasiswa (175k) terpasang!"], 200);
+            } elseif ($data[0]['kategori'] == 'K') {
+                $query2 = $this->db->query("UPDATE tb_pendaftaran SET total_bayar = '$v200' WHERE id_user = '$id_user'");
+                $query2 = $this->db->query("UPDATE voucher SET is_used = 'Y' WHERE kode_voucher = '$voucher'");
+                return $response->withJson(["status" => "success", "message" => "Voucher Komunitas (200k) terpasang!"], 200);
+            } elseif ($data[0]['kategori'] == 'A') {
+                $query2 = $this->db->query("UPDATE tb_pendaftaran SET total_bayar = '$v200' WHERE id_user = '$id_user'");
+                $query2 = $this->db->query("UPDATE voucher SET is_used = 'Y' WHERE kode_voucher = '$voucher'");
+                return $response->withJson(["status" => "success", "message" => "Voucher Alumni (200k) terpasang!"], 200);
+            }
+        } else {
             return $response->withJson(["status" => "failed", "message" => "Voucher tidak ditemukan!"], 404);
         }
     });
