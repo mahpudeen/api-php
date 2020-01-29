@@ -17,18 +17,18 @@ return [
         ],
 
         // Database Settings
-        //'db' => [
+        // 'db' => [
         //    'host' => 'localhost',
         //    'user' => 'root',
         //    'pass' => '',
         //    'dbname' => 'db_otten32run',
         //    'driver' => 'mysql'
-        //]
-		'db' => [
+        // ]
+	    'db' => [
             'host' => '35.187.253.244',
             'user' => 'otten32run',
             'pass' => 'qwerty123',
-            'dbname' => 'db_otten32run',
+            'dbname' => 'db_otten32run2',
             'driver' => 'mysql'
         ]
     ],

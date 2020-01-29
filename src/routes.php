@@ -119,11 +119,12 @@ return function (App $app) {
             $obat_pribadi = $jsonParams['obat_pribadi'];
             $size_chart = $jsonParams['size_chart'];
 			$tgl_pendaftaran = $jsonParams['tgl_pendaftaran'];
-            $total_bayar = 200000+(intval($id_user));
-			$no_peserta = 10000+(intval($id_user));
+            $institusi = $jsonParams['institusi'];
+            $pekerjaan = $jsonParams['pekerjaan'];
+            $total_bayar = 225000+(intval($id_user));
 
-            $query = "INSERT INTO tb_pendaftaran(id_user, nomor_identitas, jenis_kelamin, alamat_user, tempat_lahir, tanggal_lahir, golongan_darah, riwayat_kesehatan, riwayat_kesehatan_keluarga, obat_pribadi, size_chart, total_bayar, status_bayar, status_racepack, tgl_pendaftaran, no_peserta)
-            VALUES ('$id_user', '$nomor_identitas', '$jenis_kelamin', '$alamat_user', '$tempat_lahir', '$tanggal_lahir', '$golongan_darah', '$riwayat_kesehatan', '$riwayat_kesehatan_keluarga', '$obat_pribadi', '$size_chart', $total_bayar, 'pending', 'N', '$tgl_pendaftaran', '$no_peserta')";
+            $query = "INSERT INTO tb_pendaftaran(id_user, nomor_identitas, jenis_kelamin, alamat_user, tempat_lahir, tanggal_lahir, golongan_darah, riwayat_kesehatan, riwayat_kesehatan_keluarga, obat_pribadi, size_chart, total_bayar, status_bayar, status_racepack, tgl_pendaftaran, institusi, pekerjaan)
+            VALUES ('$id_user', '$nomor_identitas', '$jenis_kelamin', '$alamat_user', '$tempat_lahir', '$tanggal_lahir', '$golongan_darah', '$riwayat_kesehatan', '$riwayat_kesehatan_keluarga', '$obat_pribadi', '$size_chart', $total_bayar, 'pending', 'N', '$tgl_pendaftaran','$institusi','$pekerjaan')";
 
             if ($this->db->query($query)) {
                 return $response->withJson(["status" => "success", "message" => "Daftar sukses!"], 200);
@@ -200,6 +201,31 @@ return function (App $app) {
         }
     });
 
+    $app->post('/voucher/', function (Request $request, Response $response) {
+        $jsonParams = $request->getParsedBody();
+        $voucher = $jsonParams['voucher'];
+        $id_user = $jsonParams['id_user'];
+        $v150 = 175000+(intval($id_user));
+        $v175 = 200000+(intval($id_user));
+        $v200 = 200000+(intval($id_user));
+        
+        if ($voucher == '32130996') {
+            $query = "UPDATE tb_pendaftaran SET total_bayar = '$v150' WHERE id_user = '$id_user'";
+            $this->db->query($query);
+            return $response->withJson(["status" => "success", "message" => "Voucher Mahasiswa (175k) terpasang!"], 200);
+        } elseif ($voucher == '32260296'){
+            $query = "UPDATE tb_pendaftaran SET total_bayar = '$v175' WHERE id_user = '$id_user'";
+            $this->db->query($query);
+            return $response->withJson(["status" => "success", "message" => "Voucher Alumni (200k) terpasang!"], 200);
+        } elseif ($voucher == '32090195'){
+            $query = "UPDATE tb_pendaftaran SET total_bayar = '$v200' WHERE id_user = '$id_user'";
+            $this->db->query($query);
+            return $response->withJson(["status" => "success", "message" => "Voucher Komunitas (200k) terpasang!"], 200);
+        }else{
+            return $response->withJson(["status" => "failed", "message" => "Voucher tidak ditemukan!"], 404);
+        }
+    });
+
     $app->post('/update_racepack/', function (Request $request, Response $response) {
         $jsonParams = $request->getParsedBody();
         $id_user = $jsonParams['id_user'];
@@ -273,9 +299,9 @@ return function (App $app) {
                 $mail->Port = 587;
                 $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->SMTPAuth = true;
-                $mail->Username = 'pefindotest@gmail.com';
-                $mail->Password = 'pefindotest123';
-                $mail->setFrom("admin@otten32run.com", "Lupa password");
+                $mail->Username = 'otten32run@gmail.com';
+                $mail->Password = 'otten32run123';
+                $mail->setFrom("otten32run@gmail.com", "Lupa password");
                 $mail->addAddress($email_user, $rowCheckUsernameAndEmail[0]['nama_lengkap']);
                 //Mail Content
                 $mail->isHTML(true);
