@@ -175,9 +175,9 @@ return function (App $app) {
         $jml_belumbayar = $sql3 ->fetch_assoc();
         $sql4 = $this->db->query("SELECT count(*) as jml_lunas FROM tb_pendaftaran WHERE status_bayar = 'lunas'");
         $jml_lunas = $sql4->fetch_assoc();
-        $sql5 = $this->db->query("SELECT count(*) as jml_racepack_n  FROM tb_pendaftaran WHERE status_racepack = 'N'");
+        $sql5 = $this->db->query("SELECT count(*) as jml_racepack_n  FROM tb_pendaftaran WHERE status_racepack = 'N' AND status_bayar = 'lunas'");
         $jml_racepack_n = $sql5->fetch_assoc();
-        $sql6 = $this->db->query("SELECT count(*) as jml_racepack_y  FROM tb_pendaftaran WHERE status_racepack = 'Y'");
+        $sql6 = $this->db->query("SELECT count(*) as jml_racepack_y  FROM tb_pendaftaran WHERE status_racepack = 'Y' AND status_bayar = 'lunas'");
         $jml_racepack_y = $sql6->fetch_assoc();
 		$sql7 = $this->db->query("SELECT count(*) as jml_daftar FROM tb_pendaftaran WHERE tgl_pendaftaran = CURDATE()");
         $jml_daftar = $sql7 ->fetch_assoc();
