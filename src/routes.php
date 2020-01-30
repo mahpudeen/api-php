@@ -47,6 +47,7 @@ return function (App $app) {
         $res = $check->num_rows;
 
         if ($res > 0) {
+            $sql = $this->db->query("DELETE FROM tb_pendaftaran WHERE id_user = '$id_user'");
             $sql = $this->db->query("DELETE FROM tb_user WHERE id_user = '$id_user'");
             return $response->withJson(["status" => "delete success", "data" => $id_user], 200);
         } else {
@@ -192,12 +193,46 @@ return function (App $app) {
         $id_user = $jsonParams['id_user'];
 		$status_bayar = $jsonParams['status_bayar'];
 
-        $query = "UPDATE tb_pendaftaran SET status_bayar = '$status_bayar' WHERE id_user = '$id_user'";
+        if ($status_bayar == 'lunas') {
+            $query = $this->db->query("UPDATE tb_pendaftaran SET status_bayar = '$status_bayar' WHERE id_user = '$id_user'");
+            $sqlCheck = $this->db->query("SELECT * FROM tb_user WHERE id_user = '$id_user'");
+            $data = $sqlCheck->fetch_all(MYSQLI_ASSOC);
+             try {
+                $mail = new PHPMailer(true);  
+                $mail->isSMTP();
+                $mail->SMTPDebug = \PHPMailer\PHPMailer\SMTP::DEBUG_SERVER;
+                $mail->Host = 'smtp.gmail.com';
+                $mail->Port = 587;
+                $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->SMTPAuth = true;
+                $mail->Username = 'otten32run@gmail.com';
+                $mail->Password = 'otten32run123';
+                $mail->setFrom("otten32run@gmail.com", "Pembayaran Otten32run Terkonfirmasi");
+                $mail->addAddress($data[0]['email_user'], $data[0]['nama_lengkap']);
+                //Mail Content
+                $mail->isHTML(true);
+                $mail->Subject = "Download tiket";
+                $mail->Body = 'Terimakasih sudah melakukan pembayaran, <br><br> Silahkan download tiket anda <a href=http://35.187.253.244:8088/cetaktiket/?idUser='.$data[0]['id_user'].'>disini</a>';
+                $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+                if($mail->send())
+                {
+                    return $response->withJson(["status" => "success", "message" => "Sudah Bayar!"])->withStatus(200)->withHeader('Content-Type', 'application/json');
+                }
+                else
+                {
+                    return $response->withJson(["status" => "error", "message" => $mail->ErrorInfo])->withStatus(400)->withHeader('Content-Type', 'application/json');
+                }
+            }
+            catch (Exception $e)
+            {
+                return $response->withJson(["status" => "error", "message" => $mail->ErrorInfo])->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
 
-        if ($this->db->query($query)) {
-            return $response->withJson(["status" => "success", "message" => "Register success!"], 200);
+        } elseif ($status_bayar == 'pending') {
+            $query = $this->db->query("UPDATE tb_pendaftaran SET status_bayar = '$status_bayar' WHERE id_user = '$id_user'");
+            return $response->withJson(["status" => "success", "message" => "Cancel bayar!"], 200);
         } else {
-            return $response->withJson(["status" => "failed", "message" => "Register failed!"], 404);
+            return $response->withJson(["status" => "failed", "message" => "failed!"], 404);
         }
     });
 
