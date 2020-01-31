@@ -306,7 +306,7 @@ return function (App $app) {
     });
 
     $app->get('/users_racepack_n/', function (Request $request, Response $response) {
-        $sql = "SELECT * FROM tb_pendaftaran p join tb_user u on p.id_user = u.id_user where p.status_racepack='N'";
+        $sql = "SELECT * FROM tb_pendaftaran p join tb_user u on p.id_user = u.id_user where p.status_racepack='N' AND status_bayar = 'lunas'";
         $stmt = $this->db->query($sql);
         $result = $stmt->fetch_all(MYSQLI_ASSOC);
 
@@ -314,7 +314,7 @@ return function (App $app) {
     });
 
     $app->get('/users_racepack_y/', function (Request $request, Response $response) {
-        $sql = "SELECT * FROM tb_pendaftaran p join tb_user u on p.id_user = u.id_user where p.status_racepack='Y'";
+        $sql = "SELECT * FROM tb_pendaftaran p join tb_user u on p.id_user = u.id_user where p.status_racepack='Y' AND status_bayar = 'lunas'";
         $stmt = $this->db->query($sql);
         $result = $stmt->fetch_all(MYSQLI_ASSOC);
 
